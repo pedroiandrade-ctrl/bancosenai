@@ -7,7 +7,7 @@ namespace BancoSENAIAPI.Controllers
     public class DocumentoController : Controller
     {
         private readonly string _caminhoRaiz = Path.Combine(
-            Directory.GetCurrentDIrectory(), "ClienteArquivos"
+            Directory.GetCurrentDirectory(), "ClienteArquivos"
             );
 
         private static List<Models.DocumentoMetadados> _DocumentosMetadados = new List<Models.DocumentoMetadados>();
@@ -22,7 +22,7 @@ namespace BancoSENAIAPI.Controllers
                 return BadRequest("Nenhum arquivo foi enviado.");
             }
 
-            string pastaCliente = Path.Combine(_caminhoRaiz, codigoCliente.ToString);
+            string pastaCliente = Path.Combine(_caminhoRaiz, codigoCliente.ToString());
 
             if(!Directory.Exists(pastaCliente))
             {
@@ -30,7 +30,7 @@ namespace BancoSENAIAPI.Controllers
             }
 
             string extensao = Path.GetExtension(arquivo.FileName);
-            string nameOriginal = Path. GetFileNameWithoutExtension(arquivo.FileName);
+            string nomeOriginal = Path. GetFileNameWithoutExtension(arquivo.FileName);
             string novoNome = $"{codigoCliente}_{nomeOriginal}_{Guid.NewGuid()}{extensao}";
             string caminhoFInal = Path.Combine(pastaCliente, novoNome);
 
@@ -39,16 +39,16 @@ namespace BancoSENAIAPI.Controllers
                 await arquivo.CopyToAsync(stream);
             }
 
-            var documentoMetadados = new Models.DocumentoMetadado
+            var documentoMetadados = new Models.DocumentoMetadados
             {
                 Id = _nextid++,
-                nameof = nomeOriginal,
-                extensao = extensao,
-                caminho = caminhoFInal,
+                Name = nomeOriginal,
+                Extensao = extensao,
+                Caminho = caminhoFInal,
                 CodigoCliente = codigoCliente
             };
 
-            _documentosMetadados.Add(documentoMetadados);
+            _DocumentosMetadados.Add(documentoMetadados);
 
             return Ok(new { mensagem = "Documento anexado com sucesso", arquivoSalvo = novoNome });
         }
