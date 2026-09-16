@@ -26,6 +26,20 @@ namespace BancoSENAIAPI.Controllers
                 return BadRequest("Nenhum arquivo foi enviado.");
             }
 
+            long limiteMaximoBytes = 2 * 1024 * 1024;
+            if (arquivo.Length > limiteMaximoBytes)
+            {
+                return BadRequest(new { erro = "R06F", mensagem = "O tamanho do arquivo excede o limite máximo permitido de 2 MB." });
+            }
+
+            string eXtensao = Path.GetExtension(arquivo.FileName).ToLowerInvariant();
+            string[] extensoesPermitidas = { ".pdf", ".jpg", ".png" };
+
+            if (!extensoesPermitidas.Contains(eXtensao))
+            {
+                return BadRequest(new { erro = "R06G", mensagem = $"A extensão '{eXtensao}' não é permitida. Apenas arquivos .pdf, .jpg e .png são homologados." });
+            }
+
             string pastaCliente = Path.Combine(_caminhoRaiz, codigoCliente.ToString());
 
             if (!Directory.Exists(pastaCliente))
