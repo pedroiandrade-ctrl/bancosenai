@@ -1,4 +1,3 @@
-// Ajuste a URL para a rota base da sua API (remova o Swagger)
 const URL_API = 'https://localhost:7081';
 
 async function enviarDocumento() {
@@ -15,15 +14,17 @@ async function enviarDocumento() {
     dadosArquivo.append("arquivo", arquivo);
 
     try {
-        const response = await fetch(`${URL_API}/upload/${codigoCliente}`, {
+        const response = await fetch(`${URL_API}/api/v1/Documento/upload/${codigoCliente}`, {
             method: "POST",
             body: dadosArquivo
         });
 
         if (response.ok) {
+            alert("Documento enviado com sucesso!");
+            document.getElementById("codigoClienteBusca").value = codigoCliente;
             document.getElementById("codigoCliente").value = "";
             document.getElementById("arquivo").value = "";
-            alert("Documento enviado com sucesso!");
+            listarDocumentos();
         } else {
             const erro = await response.json();
             alert("Erro: " + (erro.message || "Falha ao enviar o documento"));
@@ -43,7 +44,7 @@ async function listarDocumentos() {
     }
 
     try {
-        const response = await fetch(`${URL_API}/api/v1/Documento/cliente/${codigoCliente}`);
+        const response = await fetch(`${URL_API}/api/v1/Documento/listar/${codigoCliente}`);
 
         if (response.ok) {
             const documentos = await response.json();
@@ -103,7 +104,7 @@ async function excluirDocumento(id) {
     }
 
     try {
-        const response = await fetch(`${URL_API}/api/v1/Documento/${id}`, {
+        const response = await fetch(`${URL_API}/api/v1/Documento/excluir/${id}`, {
             method: "DELETE"
         });
 
