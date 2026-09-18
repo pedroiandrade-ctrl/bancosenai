@@ -15,7 +15,6 @@ async function enviarDocumento() {
     dadosArquivo.append("arquivo", arquivo);
 
     try {
-        // Corrigido: 'method: "POST"' com dois pontos
         const response = await fetch(`${URL_API}/upload/${codigoCliente}`, {
             method: "POST",
             body: dadosArquivo
@@ -28,6 +27,47 @@ async function enviarDocumento() {
         } else {
             const erro = await response.json();
             alert("Erro: " + (erro.message || "Falha ao enviar o documento"));
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        alert("Erro ao conectar com o servidor.");
+    }
+}
+
+async function listarDocumentos() {
+    const codigoCliente = document.getElementById("codigoClienteBusca").value;
+
+    if (!codigoCliente) {
+        alert("Informe o código do cliente para buscar");
+        return;
+    }
+
+    try {
+        const response = await fetch(`${URL_API}/api/v1/Documento/cliente/${codigoCliente}`);
+
+        if (response.ok) {
+            const documentos = await response.json();
+            const corpoTabela = document.getElementById("corpoTabela");
+            corpoTabela.innerHTML = ""; 
+
+            documentos.forEach(doc => {
+                const linha = document.createElement("tr");
+
+                linha.innerHTML = `
+                    <td>${doc.id}</td>
+                    <td>${doc.nome}</td>
+                    <td>${doc.extensao}</td>
+                    <td>
+                        <!-- Botões das próximas HUs -->
+                        <button class="btn-baixar">Baixar</button>
+                        <button class="btn-excluir">Excluir</button>
+                    </td>
+                `;
+
+                corpoTabela.appendChild(linha);
+            });
+        } else {
+            alert("Erro ao buscar documentos.");
         }
     } catch (error) {
         console.error("Erro na requisição:", error);
