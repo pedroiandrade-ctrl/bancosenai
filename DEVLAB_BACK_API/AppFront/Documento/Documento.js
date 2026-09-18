@@ -58,7 +58,7 @@ async function listarDocumentos() {
     <td>${doc.extensao}</td>
     <td>
         <button class="btn-baixar" style="background-color: #ffc107;" onclick="baixarDocumento(${doc.id}, '${doc.nome}')">Baixar</button>
-        <button class="btn-excluir">Excluir</button>
+        <button class="btn-excluir" style="background-color: #dc3545; color: white;" onclick="excluirDocumento(${doc.id})">Excluir</button>
     </td>
 `;
 
@@ -93,6 +93,28 @@ async function baixarDocumento(id, nomeArquivo) {
         }
     } catch (error) {
         console.error("Erro na requisição de download:", error);
+        alert("Erro ao conectar com o servidor.");
+    }
+}
+
+async function excluirDocumento(id) {
+    if (!confirm("Tem certeza que deseja excluir este documento?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`${URL_API}/api/v1/Documento/${id}`, {
+            method: "DELETE"
+        });
+
+        if (response.ok) {
+            alert("Documento excluído com sucesso!");
+            listarDocumentos();
+        } else {
+            alert("Erro ao excluir o documento.");
+        }
+    } catch (error) {
+        console.error("Erro na requisição de exclusão:", error);
         alert("Erro ao conectar com o servidor.");
     }
 }
