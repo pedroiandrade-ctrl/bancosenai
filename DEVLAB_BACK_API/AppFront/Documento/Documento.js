@@ -52,17 +52,15 @@ async function listarDocumentos() {
 
             documentos.forEach(doc => {
                 const linha = document.createElement("tr");
-
                 linha.innerHTML = `
-                    <td>${doc.id}</td>
-                    <td>${doc.nome}</td>
-                    <td>${doc.extensao}</td>
-                    <td>
-                        <!-- Botões das próximas HUs -->
-                        <button class="btn-baixar">Baixar</button>
-                        <button class="btn-excluir">Excluir</button>
-                    </td>
-                `;
+    <td>${doc.id}</td>
+    <td>${doc.nome}</td>
+    <td>${doc.extensao}</td>
+    <td>
+        <button class="btn-baixar" style="background-color: #ffc107;" onclick="baixarDocumento(${doc.id}, '${doc.nome}')">Baixar</button>
+        <button class="btn-excluir">Excluir</button>
+    </td>
+`;
 
                 corpoTabela.appendChild(linha);
             });
@@ -71,6 +69,30 @@ async function listarDocumentos() {
         }
     } catch (error) {
         console.error("Erro na requisição:", error);
+        alert("Erro ao conectar com o servidor.");
+    }
+}
+
+async function baixarDocumento(id, nomeArquivo) {
+    try {
+        const response = await fetch(`${URL_API}/api/v1/Documento/download/${id}`);
+
+        if (response.ok) {
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = nomeArquivo; 
+            document.body.appendChild(a);
+            a.click(); 
+            a.remove();
+            window.URL.revokeObjectURL(url);
+        } else {
+            alert("Erro ao realizar o download do arquivo.");
+        }
+    } catch (error) {
+        console.error("Erro na requisição de download:", error);
         alert("Erro ao conectar com o servidor.");
     }
 }
