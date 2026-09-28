@@ -102,7 +102,7 @@ async function excluirDocumento(id) {
     if (!confirm("Tem certeza que deseja excluir este documento?")) {
         return;
     }
-s
+
     try {
         const response = await fetch(`${URL_API}/api/v1/Documento/excluir/${id}`, {
             method: "DELETE"
