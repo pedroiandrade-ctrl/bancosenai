@@ -1,5 +1,8 @@
-﻿using BancoSENAIAPI.Models;
+﻿using BancoSENAIAPI.Data;
+using BancoSENAIAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace BancoSENAIAPI.Controllers
 {
@@ -7,24 +10,32 @@ namespace BancoSENAIAPI.Controllers
     [Route("api/v1/[controller]")]
     public class ClienteController : ControllerBase
     {
-     
+
+        private readonly AppDbContext _Context;
+
+        public ClienteController(AppDbContext context)
+        {
+            _Context = context;
+        }
 
         [HttpGet]
-        public IActionResult ListarTodos()
+        public async Task<IActionResult> ListarTodos()
         {
-            return Ok();
+            var Cliente = await _Context.Cliente.ToListAsync();
+            return Ok(Cliente);
         }
 
         [HttpPost]
-        public IActionResult Cadastrar([FromBody] Cliente cliente)
+        public async Task<IActionResult> Cadastrar([FromBody] Cliente cliente)
         {
-            //var novoCliente = _service.Cadastrar(cliente);
-
+            
+            _Context.Cliente.Add(cliente);
+            await _Context.SaveChangesAsync();
             return Created("", cliente);
         }
 
         [HttpGet("{codigo}")]
-        public IActionResult BuscarPorCodigo(int codigo)
+        public async Task <IActionResult> BuscarPorCodigo(int codigo)
         {
             //var cliente = _service.BuscarPorCodigo(codigo);
 
