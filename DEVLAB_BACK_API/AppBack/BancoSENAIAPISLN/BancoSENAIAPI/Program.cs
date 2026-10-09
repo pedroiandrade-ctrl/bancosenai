@@ -2,9 +2,38 @@ using Microsoft.OpenApi.Models;
 using Microsoft.EntityFrameworkCore;
 using BancoSENAIAPI;
 using BancoSENAIAPI.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using BancoSENAIAPI.Services;
+using System.Text;
+using System.Security.Cryptography.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+builder.Services.AddScoped<TokenService>();
+var jwtSection = builder.Configuration.GetSection("Jwt");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+ {
+     options.TokenValidationParameters = new TokenValidationParameters
+     {
+         ValidateIssuer = true,
+         ValidateAudience = true,
+         ValidateLifetime = true,
+         ValidateIssuerSigningKey = true,
+         ValidIssuer = jwtSection["Issuer"],
+         ValidAudience = jwtSection["Audience"],
+         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSection["Key"]))
+
+     };
+ });
+
+builder.Services.AddAuthorization();
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -18,11 +47,30 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+c.SwaggerDoc("v1", new OpenApiInfo
+{
+    Title = "Banco SENAI - Sistema Financeiro",
+    Version = "v1",
+    Description = "API Gestão Financeira e Integração Clientes."
+});
+c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+{
+    Name = "authorization",
+    Type = SecuritySchemeType.Http,
+    Scheme = "bearer",
+    BearerFormat = "JWT",
+    In = ParameterLocation.Header,
+    Description = "Informe apenas o token JWT"
+});
+c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        Title = "Banco SENAI - Sistema Financeiro",
-        Version = "v1",
-        Description = "API Gestão Financeira e Integração Clientes."
+        { 
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+                Array.Empty<string>()
+        }
     });
 });
 
